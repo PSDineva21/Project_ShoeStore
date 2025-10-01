@@ -51,7 +51,6 @@ def add_to_cart(product_id):
         flash('Продуктът не е намерен.', 'error')
         return redirect(url_for('catalog.catalog'))
 
-    # Проверка за размер - преобразуване в int и валидация
     try:
         if size is None:
             flash('Моля, изберете размер.', 'error')
@@ -69,7 +68,6 @@ def add_to_cart(product_id):
         flash('Недостатъчна наличност.', 'error')
         return redirect(url_for('catalog.product_detail', product_id=product_id))
 
-    # Добавяне в кошницата
     success = cart_service.add_to_cart(user_id, product_id, size_int, quantity)
 
     if success:
@@ -131,8 +129,6 @@ def checkout():
     from services.cart_service import cart_service
     from services.catalog_service import catalog_service
     from services.order_service import order_service
-    from services.notification_service import notification_service
-    from services.auth_service import auth_service
 
     if 'user_id' not in session:
         flash('Моля, влезте в акаунта си за да направите поръчка.', 'warning')
@@ -153,9 +149,6 @@ def checkout():
 
         if order:
             cart_service.clear_cart(user_id)
-            user = auth_service.get_user_by_id(user_id)
-            notification_service.notify(user, "order", order)
-
             flash(f'Поръчката ви е направена успешно! Номер на поръчка: #{order.id}', 'success')
             return redirect(url_for('cart.view_orders'))
         else:
@@ -177,48 +170,3 @@ def view_orders():
     orders = order_service.get_orders_by_user(user_id)
 
     return render_template('orders.html', orders=orders)
-
-
-@cart_bp.route('/notifications')
-def view_notifications():
-    from services.notification_service import notification_service
-
-    if 'user_id' not in session:
-        flash('Моля, влезте в акаунта си.', 'warning')
-        return redirect(url_for('auth.login'))
-
-    user_id = session['user_id']
-    notifications = notification_service.get_user_notifications(user_id)
-
-    return render_template('notifications.html', notifications=notifications)
-
-
-@cart_bp.route('/notifications/mark_read/<int:notification_id>')
-def mark_notification_read(notification_id):
-    from services.notification_service import notification_service
-
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
-
-    user_id = session['user_id']
-    success = notification_service.mark_as_read(notification_id, user_id)
-
-    if success:
-        flash('Нотификацията е маркирана като прочетена.', 'success')
-    else:
-        flash('Грешка при маркиране на нотификацията.', 'error')
-
-    return redirect(url_for('cart.view_notifications'))
-
-
-@cart_bp.route('/notifications/mark_all_read')
-def mark_all_notifications_read():
-    from services.notification_service import notification_service
-
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
-
-    user_id = session['user_id']
-    notification_service.mark_all_as_read(user_id)
-    flash('Всички нотификации са маркирани като прочетени.', 'success')
-    return redirect(url_for('cart.view_notifications'))

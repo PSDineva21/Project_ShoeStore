@@ -20,27 +20,18 @@ def index():
 def about():
     return render_template('about.html')
 
-
 @app.context_processor
 def inject_user():
     from services.auth_service import auth_service
-    from services.notification_service import notification_service
     from services.catalog_service import catalog_service
 
     user = None
-    notifications = []
-    unread_count = 0
 
     if 'user_id' in session:
         user = auth_service.get_user_by_id(session['user_id'])
-        if user:
-            notifications = notification_service.get_user_notifications(user.id)
-            unread_count = notification_service.get_unread_count(user.id)
 
     return dict(
         current_user=user,
-        user_notifications=notifications[:5],
-        unread_notifications_count=unread_count,
         catalog_service=catalog_service,
         auth_service=auth_service
     )

@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from services.auth_service import auth_service
-from services.notification_service import notification_service
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -18,7 +17,6 @@ def register():
 
         user = auth_service.register(email, password)
         if user:
-            notification_service.notify(user, "registration", None)
             flash('Регистрацията е успешна! Моля, влезте в акаунта си.', 'success')
             return redirect(url_for('auth.login'))
         else:

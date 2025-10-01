@@ -1,30 +1,3 @@
-class CartItem:
-
-
-    def __init__(self, product_id, size, quantity):
-        self._product_id = product_id
-        self._size = size
-        self._quantity = quantity
-
-    @property
-    def product_id(self):
-        return self._product_id
-
-    @property
-    def size(self):
-        return self._size
-
-    @property
-    def quantity(self):
-        return self._quantity
-
-    @quantity.setter
-    def quantity(self, value):
-        if value > 0:
-            self._quantity = value
-        else:
-            raise ValueError("Количеството трябва да е положително число")
-
 
 class CartItem:
 
